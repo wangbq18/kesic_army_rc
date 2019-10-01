@@ -1,0 +1,17 @@
+/input/*
+*.txt
+.idea/*
+*.csv
+*.zip
+*.pack
+*.json 
+*.pyc 
+*.npy 
+.vscode
+*.pdf 
+*.weights 
+*.json 
+*.db 
+*.log
+bert_model.* 
+code/金融_entity.py
