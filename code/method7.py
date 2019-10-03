@@ -23,7 +23,7 @@ dict_path = os.path.join(base_path, 'chinese-bert_chinese_wwm_L-12_H-768_A-12/vo
 data_path = '/media/yinshuai/d8644f6c-5a97-4e12-909b-b61d2271b61c/nlp-datasets/senti_dataset'
 model_path = '/media/yinshuai/d8644f6c-5a97-4e12-909b-b61d2271b61c/nlp-datasets'
 import time 
-weight_save_path = os.path.join(model_path, 'kesicnl2sql_finetune_7_0.84.weights') # kesicnl2sql_finetune.weight is good 
+weight_save_path = os.path.join(model_path, 'kesicnl2sql_finetune_7_0.84.weights2019-10-02 03:35:52') # kesicnl2sql_finetune.weight is good 
 token_dict = {}
 
 with codecs.open(dict_path, 'r', 'utf8') as reader:
@@ -107,7 +107,7 @@ def seq_padding(X, padding=0, maxlen=None):
 
 
 class data_generator:
-    def __init__(self, data, batch_size=10):
+    def __init__(self, data, batch_size=9):
         self.data = data
         self.batch_size = batch_size
         self.steps = len(self.data) // self.batch_size
@@ -281,7 +281,7 @@ loss = loss_p + p_ans_start_loss +  p_ans_end_loss
 
 train_model.add_loss(loss)
 train_model.compile(
-    optimizer=Adam(5e-6), # 用足够小的学习率
+    optimizer=Adam(3e-5), # 用足够小的学习率
     metrics=['accuracy']
 )
 train_model.summary()
@@ -303,10 +303,10 @@ if mode == 'train':
 #     # print(d[0][4].shape)
 
 # learning_rate = 5e-5
-learning_rate = 5e-6# from 15 to 8 
-min_learning_rate = 1e-6
+learning_rate = 3e-5# from 15 to 8 
+min_learning_rate = 8e-6
 
-model.load_weights(weight_save_path)
+# model.load_weights(weight_save_path)
 ch_good_regex = re.compile(r'[\u4e00-\u9fa5a-zA-Z0-9]')
 def test(test_data):
     #model.load_weights(weight_save_path)
@@ -439,8 +439,9 @@ if mode == 'test':
 def evaluate(valid_data):
     valid_len = len(valid_data)
     # return 0 
-    # model.load_weights(weight_save_path)
-    right = 0 
+    model.load_weights(weight_save_path)
+    pos_right = 0 
+    neg_right = 0 
     right_start_may = 0 
     right_end_may = 0 
     for val in valid_data:
@@ -459,22 +460,23 @@ def evaluate(valid_data):
         #and pp.index(max(pp)) == 1
         # print(answer is None)
         if 1 in startpos and 1 in endpos and answer is not None:
-            #print(pp,  startpos.index(1), endpos.index(1), passage[startpos.index(1) - 1  : endpos.index(1)], '-------', answer )
+            print(pp,  startpos.index(1), endpos.index(1), passage[startpos.index(1) - 1  : endpos.index(1)], '-------', answer )
             # if text[startpos.index(1) - 1  : endpos.index(1)] == ans:
                 # right += 1 
-            right += 1 
+            pos_right += 1 
         if  answer is None and 1 not  in startpos and 1 not in endpos:
-            right += 1 
-    print(right / valid_len)
+            neg_right += 1 
+    print(pos_right / valid_len)
+    print(neg_right / valid_len)
     # test(test_data)
     return 0 
 
     return right / valid_len
 
 #if mode == 'train':
-# evaluate(valid_data)
-# import sys 
-# sys.exit(0)
+evaluate(valid_data)
+import sys 
+sys.exit(0)
 
 class Evaluate(Callback):
     def __init__(self):
